@@ -95,3 +95,12 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_trace(void)
+{
+  int mask;
+  argint(0, &mask); // 从用户空间获取 trace 参数
+  myproc()->tracemask = mask; // 将 trace 参数保存到当前进程的进程控制块中
+  return 0; // 返回 0 表示系统调用执行成功
+}

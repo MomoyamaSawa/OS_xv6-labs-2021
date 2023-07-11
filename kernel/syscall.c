@@ -104,6 +104,7 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
+extern uint64 sys_trace(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -127,6 +128,34 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_trace]   sys_trace,
+};
+
+const char *syscallnames[SYS_CALL_NUM + 1] = {
+  "",       // 空字符串，用于占位
+  "fork",   // 系统调用号为 1 的系统调用名称为 "fork"
+  "exit",   // 系统调用号为 2 的系统调用名称为 "exit"
+  "wait",   // 系统调用号为 3 的系统调用名称为 "wait"
+  "pipe",   // 系统调用号为 4 的系统调用名称为 "pipe"
+  "read",   // 系统调用号为 5 的系统调用名称为 "read"
+  "kill",   // 系统调用号为 6 的系统调用名称为 "kill"
+  "exec",   // 系统调用号为 7 的系统调用名称为 "exec"
+  "fstat",  // 系统调用号为 8 的系统调用名称为 "fstat"
+  "chdir",  // 系统调用号为 9 的系统调用名称为 "chdir"
+  "dup",    // 系统调用号为 10 的系统调用名称为 "dup"
+  "getpid", // 系统调用号为 11 的系统调用名称为 "getpid"
+  "sbrk",   // 系统调用号为 12 的系统调用名称为 "sbrk"
+  "sleep",  // 系统调用号为 13 的系统调用名称为 "sleep"
+  "uptime", // 系统调用号为 14 的系统调用名称为 "uptime"
+  "open",   // 系统调用号为 15 的系统调用名称为 "open"
+  "write",  // 系统调用号为 16 的系统调用名称为 "write"
+  "mknod",  // 系统调用号为 17 的系统调用名称为 "mknod"
+  "unlink", // 系统调用号为 18 的系统调用名称为 "unlink"
+  "link",   // 系统调用号为 19 的系统调用名称为 "link"
+  "mkdir",  // 系统调用号为 20 的系统调用名称为 "mkdir"
+  "close",  // 系统调用号为 21 的系统调用名称为 "close"
+  "trace",  // 系统调用号为 22 的系统调用名称为 "trace"
+  // 在这里可以继续添加其他系统调用的名称
 };
 
 void
@@ -138,6 +167,11 @@ syscall(void)
   num = p->trapframe->a7;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->trapframe->a0 = syscalls[num]();
+    if (p->tracemask >> num & 1)
+    {
+      printf("%d: syscall %s -> %d\n",
+      p->pid, syscallnames[num], p->trapframe->a0);
+    }
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);
