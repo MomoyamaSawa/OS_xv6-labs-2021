@@ -654,3 +654,24 @@ procdump(void)
     printf("\n");
   }
 }
+
+// Return the number of non-UNUSED procs in the process table.
+int getnproc(void)
+{
+  struct proc *p;
+  int count = 0;
+  for (p = proc; p < &proc[NPROC]; p++)
+  {
+    acquire(&p->lock);
+    if (p->state != UNUSED)
+    {
+      count++;
+      release(&p->lock);
+    }
+    else
+    {
+      release(&p->lock);
+    }
+  }
+  return count;
+}

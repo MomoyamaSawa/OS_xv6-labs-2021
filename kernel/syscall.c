@@ -105,6 +105,7 @@ extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_trace(void);
+extern uint64 sys_sysinfo(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -129,6 +130,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_trace]   sys_trace,
+[SYS_sysinfo]   sys_sysinfo,
 };
 
 const char *syscallnames[SYS_CALL_NUM + 1] = {
@@ -155,7 +157,7 @@ const char *syscallnames[SYS_CALL_NUM + 1] = {
   "mkdir",  // 系统调用号为 20 的系统调用名称为 "mkdir"
   "close",  // 系统调用号为 21 的系统调用名称为 "close"
   "trace",  // 系统调用号为 22 的系统调用名称为 "trace"
-  // 在这里可以继续添加其他系统调用的名称
+  "sysinfo",
 };
 
 void
