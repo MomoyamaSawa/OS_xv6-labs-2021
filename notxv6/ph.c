@@ -14,6 +14,7 @@ struct entry {
   struct entry *next;
 };
 struct entry *table[NBUCKET];
+pthread_mutex_t locks[NBUCKET];
 int keys[NKEYS];
 int nthread = 1;
 
@@ -26,7 +27,7 @@ now()
  return tv.tv_sec + tv.tv_usec / 1000000.0;
 }
 
-static void 
+static void
 insert(int key, int value, struct entry **p, struct entry *n)
 {
   struct entry *e = malloc(sizeof(struct entry));
@@ -36,7 +37,7 @@ insert(int key, int value, struct entry **p, struct entry *n)
   *p = e;
 }
 
-static 
+static
 void put(int key, int value)
 {
   int i = key % NBUCKET;
@@ -51,10 +52,11 @@ void put(int key, int value)
     // update the existing key.
     e->value = value;
   } else {
-    // the new is new.
+    // the key is new.
+    pthread_mutex_lock(&locks[i]);
     insert(key, value, &table[i], table[i]);
+    pthread_mutex_unlock(&locks[i]);
   }
-
 }
 
 static struct entry*
