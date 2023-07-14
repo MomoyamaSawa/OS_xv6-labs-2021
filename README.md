@@ -1,12 +1,15 @@
 <p align = 'center'>
   <img width='150' src='./README.assets/stamp0013.png'>
 </p>
+<p align = 'center'> 🥕 </p>
+<p align = 'center'> 如果兔兔的仓库对你有帮助的话点个⭐喵~ </p>
+<p align = 'center'> If Tutu's repository is helpful to you, please give it a ⭐ meow~ </p>
+<p align = 'center'> もしうさぎのリポジトリが役に立った場合は、⭐をぽちっとしてくださいにゃん~  </p>
 
-<p align = 'center'> 🥕 如果兔兔的仓库对你有帮助的话点个⭐喵~ </p>
-
-<p align = 'center'> 🍒 If Tutu's repository is helpful to you, please give it a ⭐ meow~ </p>
-
-<p align = 'center'> 🍉 もしうさぎのリポジトリが役に立った場合は、⭐をぽちっとしてくださいにゃん~ </p>
+<p align = 'center'> 🍉 </p>
+<p align = 'center'> 任何 ❓问题/💭思考/💡想法 都欢迎提出！</p>
+<p align = 'center'> Any ❓question/💭thought/💡idea  is welcome! </p>
+<p align = 'center'> どんな ❓質問/💭考え/💡アイデア でも歓迎です！ </p>
 
 # 简介
 
@@ -20,7 +23,7 @@ xv6-labs-2021 的 10 个实验对应了本仓库的 10 个分支，可以查看�
 
 ![image-20230714162931847](./README.assets/image-20230714162931847.png)
 
-所有报告在 notion，预览如上🔗 [Reviews on notion](https://momoyamasawa.notion.site/OS-a1cdaf79f68245459ebe4b27f541fd26?pvs=4)
+所有报告在 notion，预览如上图，链接🔗 [Reviews on notion](https://momoyamasawa.notion.site/OS-a1cdaf79f68245459ebe4b27f541fd26?pvs=4)
 
 最近兔兔超喜欢这个[封面图](https://twitter.com/hdkjln/status/1679339270656659456?s=20)，妈妈是 **葉月透(@hdkjln)** ❤ 真的绝美绝美绝美！！！
 
