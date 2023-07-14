@@ -2,7 +2,7 @@
   <img width='150' src='./README.assets/stamp0013.png'>
 </p>
 
-<p align = 'center'> 🍊 如果兔兔的仓库对你有帮助的话点个⭐喵~ </p>
+<p align = 'center'> 🥕 如果兔兔的仓库对你有帮助的话点个⭐喵~ </p>
 
 <p align = 'center'> 🍒 If Tutu's repository is helpful to you, please give it a ⭐ meow~ </p>
 
@@ -18,7 +18,7 @@ xv6-labs-2021 的 10 个实验对应了本仓库的 10 个分支，可以查看�
 
 # 详情
 
-![image-20230714162931847](.\README.assets\image-20230714162931847.png)
+![image-20230714162931847](./README.assets/image-20230714162931847.png)
 
 所有报告在 notion，预览如上🔗 [Reviews on notion](https://momoyamasawa.notion.site/OS-a1cdaf79f68245459ebe4b27f541fd26?pvs=4)
 
