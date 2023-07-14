@@ -5,6 +5,10 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "sleeplock.h"  // lab10
+#include "fs.h"     // lab10
+#include "file.h"   // lab10
+#include "fcntl.h"  // lab10
 
 struct spinlock tickslock;
 uint ticks;
@@ -46,10 +50,10 @@ usertrap(void)
   w_stvec((uint64)kernelvec);
 
   struct proc *p = myproc();
-  
+
   // save user program counter.
   p->trapframe->epc = r_sepc();
-  
+
   if(r_scause() == 8){
     // system call
 
@@ -65,9 +69,65 @@ usertrap(void)
     intr_on();
 
     syscall();
+  } else if (r_scause() == 12 || r_scause() == 13
+             || r_scause() == 15) {
+    // mmap page fault - lab10
+    char *pa;
+    uint64 va = PGROUNDDOWN(r_stval());
+    struct vm_area *vma = 0;
+    int flags = PTE_U;
+    int i;
+    // find the VMA
+    for (i = 0; i < NVMA; ++i) {
+      // like the Linux mmap, it can modify the remaining bytes in
+      //the end of mapped page
+      if (p->vma[i].addr && va >= p->vma[i].addr
+          && va < p->vma[i].addr + p->vma[i].len) {
+        vma = &p->vma[i];
+        break;
+      }
+    }
+    if (!vma) {
+      goto err;
+    }
+    // set write flag and dirty flag to the mapped page's PTE
+    if (r_scause() == 15 && (vma->prot & PROT_WRITE)
+        && walkaddr(p->pagetable, va)) {
+      if (uvmsetdirtywrite(p->pagetable, va)) {
+        goto err;
+      }
+    } else {
+      if ((pa = kalloc()) == 0) {
+        goto err;
+      }
+      memset(pa, 0, PGSIZE);
+      ilock(vma->f->ip);
+      if (readi(vma->f->ip, 0, (uint64) pa, va - vma->addr + vma->offset, PGSIZE) < 0) {
+        iunlock(vma->f->ip);
+        goto err;
+      }
+      iunlock(vma->f->ip);
+      if ((vma->prot & PROT_READ)) {
+        flags |= PTE_R;
+      }
+      // only store page fault and the mapped page can be written
+      //set the PTE write flag and dirty flag otherwise don't set
+      //these two flag until next store page falut
+      if (r_scause() == 15 && (vma->prot & PROT_WRITE)) {
+        flags |= PTE_W | PTE_D;
+      }
+      if ((vma->prot & PROT_EXEC)) {
+        flags |= PTE_X;
+      }
+      if (mappages(p->pagetable, va, PGSIZE, (uint64) pa, flags) != 0) {
+        kfree(pa);
+        goto err;
+      }
+    }
   } else if((which_dev = devintr()) != 0){
     // ok
   } else {
+err:
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
@@ -108,7 +168,7 @@ usertrapret(void)
 
   // set up the registers that trampoline.S's sret will use
   // to get to user space.
-  
+
   // set S Previous Privilege mode to User.
   unsigned long x = r_sstatus();
   x &= ~SSTATUS_SPP; // clear SPP to 0 for user mode
@@ -121,7 +181,7 @@ usertrapret(void)
   // tell trampoline.S the user page table to switch to.
   uint64 satp = MAKE_SATP(p->pagetable);
 
-  // jump to trampoline.S at the top of memory, which 
+  // jump to trampoline.S at the top of memory, which
   // switches to the user page table, restores user registers,
   // and switches to user mode with sret.
   uint64 fn = TRAMPOLINE + (userret - trampoline);
@@ -130,14 +190,14 @@ usertrapret(void)
 
 // interrupts and exceptions from kernel code go here via kernelvec,
 // on whatever the current kernel stack is.
-void 
+void
 kerneltrap()
 {
   int which_dev = 0;
   uint64 sepc = r_sepc();
   uint64 sstatus = r_sstatus();
   uint64 scause = r_scause();
-  
+
   if((sstatus & SSTATUS_SPP) == 0)
     panic("kerneltrap: not from supervisor mode");
   if(intr_get() != 0)
@@ -207,7 +267,7 @@ devintr()
     if(cpuid() == 0){
       clockintr();
     }
-    
+
     // acknowledge the software interrupt by clearing
     // the SSIP bit in sip.
     w_sip(r_sip() & ~2);
