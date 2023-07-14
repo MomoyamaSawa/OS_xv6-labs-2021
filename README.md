@@ -1,10 +1,12 @@
-![stamp0013](./README.assets/stamp0013.png)
+<p align = 'center'>
+  <img width='150' src='./README.assets/stamp0013.png'>
+</p>
 
-🌈 如果兔兔的仓库对你有帮助的话点个⭐喵~
+<p align = 'center'> 🍊 如果兔兔的仓库对你有帮助的话点个⭐喵~ </p>
 
-🌈 If Tutu's repository is helpful to you, please give it a ⭐ meow~
+<p align = 'center'> 🍒 If Tutu's repository is helpful to you, please give it a ⭐ meow~ </p>
 
-🌈もしうさぎのリポジトリが役に立った場合は、⭐をぽちっとしてくださいにゃん~
+<p align = 'center'> 🍉 もしうさぎのリポジトリが役に立った場合は、⭐をぽちっとしてくださいにゃん~ </p>
 
 # 简介
 
