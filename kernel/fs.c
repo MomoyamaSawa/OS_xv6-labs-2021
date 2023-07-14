@@ -24,7 +24,7 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 // there should be one superblock per disk device, but we run with
 // only one device
-struct superblock sb; 
+struct superblock sb;
 
 // Read the super block.
 static void
@@ -180,7 +180,7 @@ void
 iinit()
 {
   int i = 0;
-  
+
   initlock(&itable.lock, "itable");
   for(i = 0; i < NINODE; i++) {
     initsleeplock(&itable.inode[i].lock, "inode");
@@ -374,34 +374,67 @@ iunlockput(struct inode *ip)
 
 // Return the disk block address of the nth block in inode ip.
 // If there is no such block, bmap allocates one.
-static uint
-bmap(struct inode *ip, uint bn)
-{
-  uint addr, *a;
-  struct buf *bp;
+static uint bmap(struct inode *ip, uint bn) {
+    uint addr, *a;
+    struct buf *bp;
 
-  if(bn < NDIRECT){
-    if((addr = ip->addrs[bn]) == 0)
-      ip->addrs[bn] = addr = balloc(ip->dev);
-    return addr;
-  }
-  bn -= NDIRECT;
-
-  if(bn < NINDIRECT){
-    // Load indirect block, allocating if necessary.
-    if((addr = ip->addrs[NDIRECT]) == 0)
-      ip->addrs[NDIRECT] = addr = balloc(ip->dev);
-    bp = bread(ip->dev, addr);
-    a = (uint*)bp->data;
-    if((addr = a[bn]) == 0){
-      a[bn] = addr = balloc(ip->dev);
-      log_write(bp);
+    if (bn < NDIRECT - 1) {
+        if ((addr = ip->addrs[bn]) == 0)
+            ip->addrs[bn] = addr = balloc(ip->dev);
+        return addr;
     }
-    brelse(bp);
-    return addr;
-  }
 
-  panic("bmap: out of range");
+    bn -= NDIRECT - 1;
+
+    if (bn < NINDIRECT) {
+        // Load indirect block, allocating if necessary.
+        if ((addr = ip->addrs[NDIRECT - 1]) == 0)
+            ip->addrs[NDIRECT - 1] = addr = balloc(ip->dev);
+
+        bp = bread(ip->dev, addr);
+        a = (uint*)bp->data;
+
+        if ((addr = a[bn]) == 0) {
+            a[bn] = addr = balloc(ip->dev);
+            log_write(bp);
+        }
+
+        brelse(bp);
+        return addr;
+    }
+
+    bn -= NINDIRECT;
+
+    if (bn < NINDIRECT * NINDIRECT) {
+        uint dbr = bn / NINDIRECT;
+        uint dbc = bn % NINDIRECT;
+
+        if ((addr = ip->addrs[NDIRECT]) == 0)
+            ip->addrs[NDIRECT] = addr = balloc(ip->dev);
+
+        bp = bread(ip->dev, addr);
+        a = (uint*)bp->data;
+
+        if ((addr = a[dbr]) == 0) {
+            a[dbr] = addr = balloc(ip->dev);
+            log_write(bp);
+        }
+
+        brelse(bp);
+
+        bp = bread(ip->dev, addr);
+        a = (uint*)bp->data;
+
+        if ((addr = a[dbc]) == 0) {
+            a[dbc] = addr = balloc(ip->dev);
+            log_write(bp);
+        }
+
+        brelse(bp);
+        return addr;
+    }
+
+    panic("bmap: out of range");
 }
 
 // Truncate inode (discard contents).
